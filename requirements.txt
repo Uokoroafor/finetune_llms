@@ -1,0 +1,12 @@
+torch~=2.0.0
+numpy~=1.24.3
+matplotlib~=3.7.1
+Transformers
+tqdm
+boto3
+requests
+regex
+sentencepiece
+sacremoses
+importlib_metadata
+pandas
