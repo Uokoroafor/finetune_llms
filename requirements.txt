@@ -1,12 +1,6 @@
 torch~=2.0.0
-numpy~=1.24.3
-matplotlib~=3.7.1
-Transformers
-tqdm
-boto3
-requests
-regex
-sentencepiece
-sacremoses
-importlib_metadata
-pandas
+numpy==1.25.2
+matplotlib==3.7.2
+Transformers==4.31.0
+pandas~=2.0.3
+openai~=0.27.8

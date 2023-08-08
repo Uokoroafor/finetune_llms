@@ -27,7 +27,7 @@ else:
 question_answerer = pipeline('question-answering', model=model, tokenizer=tokenizer)
 
 # Load the freefall.txt dataset
-with open('datasets/freefall_log.txt', 'r') as f:
+with open('data/freefall_log.txt', 'r') as f:
     dataset = f.read()
 
 # Preprocess the dataset
@@ -137,8 +137,3 @@ trainer = Trainer(model=model)
 trainer.train()
 
 # Why is this not working?
-
-
-
-
-

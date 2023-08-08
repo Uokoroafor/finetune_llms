@@ -33,7 +33,7 @@ tokenizer_params = {'return_tensors': 'pt', 'max_length': 128, 'truncation': Tru
 
 
 # Load the freefall.txt dataset
-with open('datasets/freefall_log.txt', 'r') as f:
+with open('data/freefall_log.txt', 'r') as f:
     dataset = f.read()
 
 # Preprocess the dataset
