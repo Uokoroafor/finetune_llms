@@ -40,9 +40,9 @@ for epoch in range(EPOCHS):
         optimizer.zero_grad()
 
         # Convert list of tensors to tensors
-        input_ids = torch.stack(batch['input_ids']).to(device)
-        attention_mask = torch.stack(batch['attention_mask']).to(device)
-        labels = torch.stack(batch['label']).to(device)
+        input_ids = torch.stack([t.to(device) for t in batch['input_ids']])
+        attention_mask = torch.stack([t.to(device) for t in batch['attention_mask']])
+        labels = torch.stack([t.to(device) for t in batch['label']])
 
         outputs = model(input_ids, attention_mask=attention_mask, labels=labels)
         loss = outputs.loss
