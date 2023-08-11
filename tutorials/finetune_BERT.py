@@ -42,13 +42,35 @@ for epoch in range(EPOCHS):
         optimizer.zero_grad()
 
         # Convert list of tensors to tensors
-        input_ids = torch.stack([t.to(device) for t in batch['input_ids']])
-        attention_mask = torch.stack([t.to(device) for t in batch['attention_mask']])
-        # labels = torch.stack([t.to(device) for t in batch['label']])
-        #
-        # input_ids = batch['input_ids'].to(device)
-        # attention_mask = batch['attention_mask'].to(device)
-        labels = batch['label'].to(device)
+        if torch.is_tensor(batch['input_ids'][0]):
+            input_ids = torch.stack(batch['input_ids'])
+        else:
+            input_ids = torch.stack([t.to(device) for t in batch['input_ids']])
+
+        if torch.is_tensor(batch['attention_mask'][0]):
+            attention_mask = torch.stack(batch['attention_mask'])
+
+        else:
+            attention_mask = torch.stack([t.to(device) for t in batch['attention_mask']])
+
+        if torch.is_tensor(batch['label'][0]):
+            labels = torch.stack(batch['label'])
+        else:
+            labels = torch.stack([t.to(device) for t in batch['label']])
+
+        # Move all to device
+        input_ids = input_ids.to(device)
+        attention_mask = attention_mask.to(device)
+        labels = labels.to(device)
+
+
+        # input_ids = torch.stack([t.to(device) for t in batch['input_ids']])
+        # attention_mask = torch.stack([t.to(device) for t in batch['attention_mask']])
+        # # labels = torch.stack([t.to(device) for t in batch['label']])
+        # #
+        # # input_ids = batch['input_ids'].to(device)
+        # # attention_mask = batch['attention_mask'].to(device)
+        # labels = batch['label'].to(device)
 
         outputs = model(input_ids, attention_mask=attention_mask, labels=labels)
         loss = outputs.loss
