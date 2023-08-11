@@ -13,7 +13,8 @@ tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
 def tokenize_function(examples):
     return tokenizer(examples['sentence1'], examples['sentence2'], truncation=True, padding='max_length',
-                     max_length=128)
+                     max_length=128, return_tensors="pt")
+
 
 
 tokenized_datasets = dataset.map(tokenize_function, batched=True)
@@ -39,16 +40,9 @@ for epoch in range(EPOCHS):
     for batch in train_dataloader:
         optimizer.zero_grad()
 
-        for key in batch:
-            print(key, type(batch[key]), batch[key][0])
-        input_ids = batch['input_ids']
-        input_ids = [t.to(device) for t in input_ids]
-
-        attention_mask = batch['attention_mask']
-        attention_mask = [t.to(device) for t in attention_mask]
-
-        labels = batch['label']
-        labels = [t.to(device) for t in labels]
+        input_ids = batch['input_ids'].to(device)
+        attention_mask = batch['attention_mask'].to(device)
+        labels = batch['label'].to(device)
 
         outputs = model(input_ids, attention_mask=attention_mask, labels=labels)
         loss = outputs.loss
