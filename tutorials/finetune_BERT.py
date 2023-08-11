@@ -18,9 +18,10 @@ def tokenize_function(examples):
 
 BATCH_SIZE = 4
 
-tokenized_datasets = dataset.map(tokenize_function, batched=True, batch_size=BATCH_SIZE)
+tokenized_datasets = dataset.map(tokenize_function, batched=False)
 
 train_dataloader = DataLoader(tokenized_datasets["train"], shuffle=True, batch_size=BATCH_SIZE)
+
 
 # Load the model
 model = BertForSequenceClassification.from_pretrained('bert-base-uncased')
