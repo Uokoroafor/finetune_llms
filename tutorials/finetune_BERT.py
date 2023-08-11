@@ -40,7 +40,8 @@ for epoch in range(EPOCHS):
         optimizer.zero_grad()
 
 
-
+        for key in batch:
+            print(key, type(batch[key]), batch[key][0])
         input_ids = torch.stack(batch['input_ids']).to(device)
         attention_mask = torch.stack(batch['attention_mask']).to(device)
         labels = torch.stack(batch['label'].to(device))
