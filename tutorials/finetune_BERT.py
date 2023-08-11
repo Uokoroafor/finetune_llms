@@ -39,12 +39,16 @@ for epoch in range(EPOCHS):
     for batch in train_dataloader:
         optimizer.zero_grad()
 
-
         for key in batch:
             print(key, type(batch[key]), batch[key][0])
-        input_ids = torch.stack(batch['input_ids']).to(device)
-        attention_mask = torch.stack(batch['attention_mask']).to(device)
-        labels = torch.stack(batch['label'].to(device))
+        input_ids = batch['input_ids']
+        input_ids = [t.to(device) for t in input_ids]
+
+        attention_mask = batch['attention_mask']
+        attention_mask = [t.to(device) for t in attention_mask]
+
+        labels = batch['label']
+        labels = [t.to(device) for t in labels]
 
         outputs = model(input_ids, attention_mask=attention_mask, labels=labels)
         loss = outputs.loss
