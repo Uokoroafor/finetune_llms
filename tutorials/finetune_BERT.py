@@ -42,16 +42,18 @@ for epoch in range(EPOCHS):
         optimizer.zero_grad()
 
         input_ids = batch['input_ids']
-        # convert to tensor (if needed) and move to device
         input_ids = torch.tensor(input_ids).to(device)
 
         attention_mask = batch['attention_mask']
-        # convert to tensor (if needed) and move to device
         attention_mask = torch.tensor(attention_mask).to(device)
 
         labels = batch['label']
-        # convert to tensor (if needed) and move to device
         labels = torch.tensor(labels).to(device)
+
+        # Print all the shapes
+        print("input_ids.shape:", input_ids.shape)
+        print("attention_mask.shape:", attention_mask.shape)
+        print("labels.shape:", labels.shape)
 
 
         outputs = model(input_ids, attention_mask=attention_mask, labels=labels)
