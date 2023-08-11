@@ -38,6 +38,10 @@ for epoch in range(EPOCHS):
     for batch in train_dataloader:
         optimizer.zero_grad()
 
+        print(type(batch))
+        print(batch.keys())
+        print(batch['input_ids'].shape)
+
         input_ids = batch['input_ids'].to(device)
         attention_mask = batch['attention_mask'].to(device)
         labels = batch['label'].to(device)
