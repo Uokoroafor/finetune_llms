@@ -16,7 +16,7 @@ def tokenize_function(examples):
                      max_length=128, return_tensors="pt")
 
 
-tokenized_datasets = dataset.map(tokenize_function, batched=False)
+tokenized_datasets = dataset.map(tokenize_function, batched=True)
 
 BATCH_SIZE = 4
 train_dataloader = DataLoader(tokenized_datasets["train"], shuffle=True, batch_size=BATCH_SIZE)
