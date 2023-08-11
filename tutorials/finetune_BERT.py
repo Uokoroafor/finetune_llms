@@ -41,14 +41,17 @@ for epoch in range(EPOCHS):
     for batch in tokenized_datasets['train']:
         optimizer.zero_grad()
 
-        input_ids = batch['input_ids'].to(device)
-        attention_mask = batch['attention_mask'].to(device)
-        labels = batch['label'].to(device)
+        input_ids = batch['input_ids']
+        # convert to tensor (if needed) and move to device
+        input_ids = torch.tensor(input_ids).to(device)
 
-        # Move all to device
-        input_ids = input_ids.to(device)
-        attention_mask = attention_mask.to(device)
-        labels = labels.to(device)
+        attention_mask = batch['attention_mask']
+        # convert to tensor (if needed) and move to device
+        attention_mask = torch.tensor(attention_mask).to(device)
+
+        labels = batch['label']
+        # convert to tensor (if needed) and move to device
+        labels = torch.tensor(labels).to(device)
 
 
         outputs = model(input_ids, attention_mask=attention_mask, labels=labels)
