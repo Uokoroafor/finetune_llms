@@ -52,7 +52,7 @@ for epoch in range(EPOCHS):
 
         else:
             attention_mask = torch.stack([t.to(device) for t in batch['attention_mask']])
-
+        print(batch['label'][0])
         if torch.is_tensor(batch['label'][0]):
             labels = torch.stack(batch['label'])
         else:
