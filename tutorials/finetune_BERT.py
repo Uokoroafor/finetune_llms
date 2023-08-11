@@ -42,6 +42,9 @@ for epoch in range(EPOCHS):
         print(batch.keys())
         print(len(batch['input_ids']))
         print(batch['input_ids'][0])
+        print(batch['attention_mask'][0])
+        print(batch['label'][0])
+
 
         input_ids = batch['input_ids'].to(device)
         attention_mask = batch['attention_mask'].to(device)
