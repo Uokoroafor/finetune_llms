@@ -42,6 +42,7 @@ for epoch in range(EPOCHS):
         optimizer.zero_grad()
 
         # Convert list of tensors to tensors
+        print(batch['input_ids'][0])
         if torch.is_tensor(batch['input_ids'][0]):
             input_ids = torch.stack(batch['input_ids'])
         else:
@@ -52,7 +53,7 @@ for epoch in range(EPOCHS):
 
         else:
             attention_mask = torch.stack([t.to(device) for t in batch['attention_mask']])
-        print(batch['label'][0])
+
         if torch.is_tensor(batch['label'][0]):
             labels = torch.stack(batch['label'])
         else:
