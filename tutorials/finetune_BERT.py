@@ -20,7 +20,7 @@ BATCH_SIZE = 4
 
 tokenized_datasets = dataset.map(tokenize_function, batched=True, batch_size=BATCH_SIZE)
 
-# train_dataloader = DataLoader(tokenized_datasets["train"], shuffle=True, batch_size=BATCH_SIZE)
+train_dataloader = DataLoader(tokenized_datasets["train"], shuffle=True, batch_size=BATCH_SIZE)
 
 
 # Load the model
@@ -38,7 +38,7 @@ optimizer = optim.AdamW(model.parameters(), lr=5e-5)
 EPOCHS = 1
 
 for epoch in range(EPOCHS):
-    for batch in tokenized_datasets['train']:
+    for batch in train_dataloader:
         optimizer.zero_grad()
 
         input_ids = batch['input_ids']
@@ -48,7 +48,7 @@ for epoch in range(EPOCHS):
         attention_mask = torch.tensor(attention_mask).to(device)
 
         labels = batch['label']
-        labels = torch.tensor(labels).to(device)
+        labels = torch.tensor(labels, dtype=torch.long).to(device)
 
         # Print all the shapes
         print("input_ids.shape:", input_ids.shape)
