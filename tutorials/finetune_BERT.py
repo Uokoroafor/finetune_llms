@@ -28,6 +28,7 @@ model = BertForSequenceClassification.from_pretrained('bert-base-uncased')
 import torch.optim as optim
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
+print('Using {} device'.format(device))
 model.to(device)
 
 optimizer = optim.AdamW(model.parameters(), lr=5e-5)
@@ -38,16 +39,10 @@ for epoch in range(EPOCHS):
     for batch in train_dataloader:
         optimizer.zero_grad()
 
-        print(type(batch))
-        print(batch.keys())
-        print(len(batch['input_ids']))
-        print(batch['input_ids'][0])
-        print(batch['attention_mask'][0])
-        print(batch['label'][0])
 
 
-        input_ids = batch['input_ids'].to(device)
-        attention_mask = batch['attention_mask'].to(device)
+        input_ids = torch.stack(batch['input_ids']).to(device)
+        attention_mask = torch.stack(batch['attention_mask']).to(device)
         labels = batch['label'].to(device)
 
         outputs = model(input_ids, attention_mask=attention_mask, labels=labels)
