@@ -18,7 +18,7 @@ def tokenize_function(examples):
 
 tokenized_datasets = dataset.map(tokenize_function, batched=True)
 
-BATCH_SIZE = 8
+BATCH_SIZE = 4
 train_dataloader = DataLoader(tokenized_datasets["train"], shuffle=True, batch_size=BATCH_SIZE)
 
 # Load the model
@@ -33,7 +33,7 @@ model.to(device)
 
 optimizer = optim.AdamW(model.parameters(), lr=5e-5)
 
-EPOCHS = 3
+EPOCHS = 1
 
 for epoch in range(EPOCHS):
     for batch in train_dataloader:
