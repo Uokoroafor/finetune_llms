@@ -32,9 +32,23 @@ def encode_data(tokenizer, texts, max_length):
 texts = data['question'].tolist()
 labels = data['answer'].tolist()
 
+val_texts = val_data['question'].tolist()
+val_labels = val_data['answer'].tolist()
+
+test_texts = test_data['question'].tolist()
+test_labels = test_data['answer'].tolist()
+
 input_ids, attention_masks = encode_data(tokenizer, texts, max_length)
 labels = torch.tensor(labels)
 dataset = TensorDataset(input_ids, attention_masks, labels)
+
+val_input_ids, val_attention_masks = encode_data(tokenizer, val_texts, max_length)
+val_labels = torch.tensor(val_labels)
+val_dataset = TensorDataset(val_input_ids, val_attention_masks, val_labels)
+
+test_input_ids, test_attention_masks = encode_data(tokenizer, test_texts, max_length)
+test_labels = torch.tensor(test_labels)
+test_dataset = TensorDataset(test_input_ids, test_attention_masks, test_labels)
 
 # print(dataset[0])
 
@@ -47,8 +61,9 @@ config.num_labels = 1
 
 model = BertForSequenceClassification(config)
 
-from transformers import AdamW, get_linear_schedule_with_warmup
+from transformers import get_linear_schedule_with_warmup
 from torch.nn import MSELoss
+from torch.optim import AdamW
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -61,10 +76,13 @@ model.to(device)
 # for param in model.classifier.parameters():
 #     param.requires_grad = True
 
-batch_size = 8
+batch_size = 16
 dataloader = DataLoader(dataset, sampler=RandomSampler(dataset), batch_size=batch_size)
+val_dataloader = DataLoader(val_dataset, sampler=SequentialSampler(val_dataset), batch_size=batch_size)
+test_dataloader = DataLoader(test_dataset, sampler=SequentialSampler(test_dataset), batch_size=batch_size)
+
 optimizer = AdamW(model.parameters(), lr=3e-5, eps=1e-8)
-epochs = 5
+epochs = 20
 scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=0, num_training_steps=len(dataloader) * epochs)
 
 loss_fn = MSELoss()
@@ -87,16 +105,32 @@ for epoch in range(epochs):
         optimizer.step()
         scheduler.step()
         # print every 100 steps
-        if (idx + 1) % 100 == 0:
-            print(f'Batch_ID: {idx + 1}, Epoch: {epoch + 1}, Loss:  {loss.item():,.4f}')
+        # if (idx + 1) % 100 == 0:
+        #     print(f'Batch_ID: {idx + 1}, Epoch: {epoch + 1}, Loss:  {loss.item():,.4f}')
 
-    print(f'Epoch {epoch + 1} complete! Loss: {epoch_loss / (idx + 1):,.4f}')
     epoch_end = time.time()
 
     hours = (epoch_end - epoch_start) // 3600
     minutes = ((epoch_end - epoch_start) % 3600) // 60
     seconds = (epoch_end - epoch_start) % 60
-    print(f'Epoch{epoch + 1} complete in {hours} hour(s), {minutes} minute(s) and {seconds: .2f} seconds.')
+    print(f'Epoch{epoch + 1} complete in {hours} hour(s), {minutes} minute(s) and {seconds: .2f} seconds. Loss: {epoch_loss / (idx + 1):,.4f}')
+    if (epoch + 1) % 5 == 0:
+        torch.save(model.state_dict(), f'./my_bert_regression_model/epoch{epoch + 1}.pth')
+        # Validation
+        model.eval()
+        val_loss = 0
+        for idx_, batch in enumerate(val_dataloader):
+            input_ids = batch[0].to(device)
+            attention_masks = batch[1].to(device)
+            labels = batch[2].to(device)
+
+            with torch.no_grad():
+                outputs = model(input_ids, attention_mask=attention_masks)[0].squeeze()
+                loss = loss_fn(outputs, labels)
+                val_loss += loss.item()
+
+        print(f'At Epoch {epoch}: Validation Loss: {val_loss / (idx_ + 1):,.4f} - Training Loss: {epoch_loss / (idx + 1):,.4f}')
+
 
 # Total training time
 end_time = time.time()
