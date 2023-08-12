@@ -87,8 +87,8 @@ for epoch in range(epochs):
         optimizer.step()
         scheduler.step()
         # print every 100 steps
-        if (idx + 1) % 100 == 0:
-            print(f'Batch_ID: {idx + 1}, Epoch: {epoch + 1}, Loss:  {loss.item():,.4f}')
+        # if (idx + 1) % 100 == 0:
+        #     print(f'Batch_ID: {idx + 1}, Epoch: {epoch + 1}, Loss:  {loss.item():,.4f}')
 
     print(f'Epoch {epoch + 1} complete! Loss: {epoch_loss / (idx + 1):,.4f}')
     epoch_end = time.time()
