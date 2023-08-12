@@ -53,13 +53,13 @@ from torch.nn import MSELoss
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 model.to(device)
-# Freeze all parameters
-for param in model.parameters():
-    param.requires_grad = False
-
-# Unfreeze the classifier layer
-for param in model.classifier.parameters():
-    param.requires_grad = True
+# # Freeze all parameters
+# for param in model.parameters():
+#     param.requires_grad = False
+#
+# # Unfreeze the classifier layer
+# for param in model.classifier.parameters():
+#     param.requires_grad = True
 
 batch_size = 8
 dataloader = DataLoader(dataset, sampler=RandomSampler(dataset), batch_size=batch_size)
@@ -87,8 +87,8 @@ for epoch in range(epochs):
         optimizer.step()
         scheduler.step()
         # print every 100 steps
-        # if (idx + 1) % 100 == 0:
-        #     print(f'Batch_ID: {idx + 1}, Epoch: {epoch + 1}, Loss:  {loss.item():,.4f}')
+        if (idx + 1) % 100 == 0:
+            print(f'Batch_ID: {idx + 1}, Epoch: {epoch + 1}, Loss:  {loss.item():,.4f}')
 
     print(f'Epoch {epoch + 1} complete! Loss: {epoch_loss / (idx + 1):,.4f}')
     epoch_end = time.time()
