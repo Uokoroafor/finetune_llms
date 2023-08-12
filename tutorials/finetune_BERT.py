@@ -86,7 +86,7 @@ for epoch in range(epochs):
         scheduler.step()
         # print every 100 steps
         if (idx + 1) // 100 == 0:
-            print(f'Batch_ID: {idx + 1}, Epoch: {epoch + 1}, Loss:  {loss.item():,4f}')
+            print(f'Batch_ID: {idx + 1}, Epoch: {epoch + 1}, Loss:  {loss.item():,.4f}')
     epoch_end = time.time()
 
     hours = (epoch_end - epoch_start) // 3600
