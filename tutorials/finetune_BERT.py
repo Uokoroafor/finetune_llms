@@ -1,68 +1,87 @@
-# This is a file for the tutorial on how to fine-tune BERT for sentence classification.
-
-# Import the required libraries
-from datasets import load_dataset
-from transformers import BertTokenizer, BertForSequenceClassification
+from transformers import BertTokenizer
+from torch.utils.data import TensorDataset, DataLoader, RandomSampler, SequentialSampler
 import torch
-from torch.utils.data import DataLoader
+import pandas as pd
 
-# Load a sample dataset
-dataset = load_dataset('glue', 'mrpc')
 tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+max_length = 512  # Change according to your needs
+
+data = pd.read_csv('data/shelfbounce/train_fixed.csv')
+val_data = pd.read_csv('data/shelfbounce/val_fixed.csv')
+test_data = pd.read_csv('data/shelfbounce/test_fixed.csv')
 
 
-def tokenize_function(examples):
-    return tokenizer(examples['sentence1'], examples['sentence2'], truncation=True, padding='max_length',
-                     max_length=128, return_tensors="pt")
+def encode_data(tokenizer, texts, max_length):
+    input_ids = []
+    attention_masks = []
+
+    for text in texts:
+        encode = tokenizer.encode_plus(text, add_special_tokens=True,
+                                       max_length=max_length, truncation=True, padding='max_length',
+                                       return_tensors='pt')
+        input_ids.append(encode['input_ids'][0])
+        attention_masks.append(encode['attention_mask'][0])
+
+    return torch.stack(input_ids), torch.stack(attention_masks)
 
 
-BATCH_SIZE = 4
+# get the questions column and convert to list
+texts = data['question'].tolist()
+labels = data['answer'].tolist()
 
-tokenized_datasets = dataset.map(tokenize_function, batched=True, batch_size=BATCH_SIZE)
+input_ids, attention_masks = encode_data(tokenizer, texts, max_length)
+labels = torch.tensor(labels)
+dataset = TensorDataset(input_ids, attention_masks, labels)
 
-train_dataloader = DataLoader(tokenized_datasets["train"], shuffle=True, batch_size=BATCH_SIZE)
+print(dataset[0])
 
+# Create the data loaders
 
-# Load the model
-model = BertForSequenceClassification.from_pretrained('bert-base-uncased')
+from transformers import BertForSequenceClassification, BertConfig
 
-# Fine-tune the model
-import torch.optim as optim
+config = BertConfig.from_pretrained("bert-base-uncased")
+config.num_labels = 1
 
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-print('Using {} device'.format(device))
+model = BertForSequenceClassification(config)
+
+from transformers import AdamW, get_linear_schedule_with_warmup
+from torch.nn import MSELoss
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 model.to(device)
+# Freeze all parameters
+for param in model.parameters():
+    param.requires_grad = False
 
-optimizer = optim.AdamW(model.parameters(), lr=5e-5)
+# Unfreeze the classifier layer
+for param in model.classifier.parameters():
+    param.requires_grad = True
 
-EPOCHS = 1
 
-for epoch in range(EPOCHS):
-    for batch in train_dataloader:
+batch_size = 8
+dataloader = DataLoader(dataset, sampler=RandomSampler(dataset), batch_size=batch_size)
+optimizer = AdamW(model.parameters(), lr=3e-5, eps=1e-8)
+epochs = 3
+scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=0, num_training_steps=len(dataloader) * epochs)
+
+loss_fn = MSELoss()
+
+model.train()
+for epoch in range(epochs):
+    for batch in dataloader:
+        input_ids = batch[0].to(device)
+        attention_masks = batch[1].to(device)
+        labels = batch[2].to(device)
+
         optimizer.zero_grad()
-
-        input_ids = batch['input_ids']
-        input_ids = torch.tensor(input_ids).to(device)
-
-        attention_mask = batch['attention_mask']
-        attention_mask = torch.tensor(attention_mask).to(device)
-
-        labels = batch['label']
-        labels = torch.tensor(labels, dtype=torch.long).to(device)
-
-        # Print all the shapes
-        print("input_ids.shape:", input_ids.shape)
-        print("attention_mask.shape:", attention_mask.shape)
-        print("labels.shape:", labels.shape)
-
-
-        outputs = model(input_ids, attention_mask=attention_mask, labels=labels)
-        loss = outputs.loss
+        outputs = model(input_ids, attention_mask=attention_masks)[0].squeeze()
+        loss = loss_fn(outputs, labels)
         loss.backward()
         optimizer.step()
-
-    print(f"Epoch {epoch + 1}/{EPOCHS} Loss: {loss.item()}")
+        scheduler.step()
 
 # Save the model
-model.save_pretrained('./my_finetuned_bert')
-tokenizer.save_pretrained('./my_finetuned_bert')
+model.save_pretrained("./my_bert_regression_model/")
+tokenizer.save_pretrained("./my_bert_regression_model/")
+
