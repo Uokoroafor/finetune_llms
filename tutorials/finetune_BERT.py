@@ -76,7 +76,7 @@ model.to(device)
 # for param in model.classifier.parameters():
 #     param.requires_grad = True
 
-batch_size = 16
+batch_size = 8
 dataloader = DataLoader(dataset, sampler=RandomSampler(dataset), batch_size=batch_size)
 val_dataloader = DataLoader(val_dataset, sampler=SequentialSampler(val_dataset), batch_size=batch_size)
 test_dataloader = DataLoader(test_dataset, sampler=SequentialSampler(test_dataset), batch_size=batch_size)
