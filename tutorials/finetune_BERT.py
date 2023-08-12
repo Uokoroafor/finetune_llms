@@ -6,6 +6,9 @@ import pandas as pd
 tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 max_length = 512  # Change according to your needs
 
+folder_loc='tutorials/d'
+
+
 data = pd.read_csv('data/shelfbounce/train_fixed.csv')
 val_data = pd.read_csv('data/shelfbounce/val_fixed.csv')
 test_data = pd.read_csv('data/shelfbounce/test_fixed.csv')
@@ -69,7 +72,7 @@ loss_fn = MSELoss()
 
 model.train()
 for epoch in range(epochs):
-    for batch in dataloader:
+    for idx, batch in enumerate(dataloader):
         input_ids = batch[0].to(device)
         attention_masks = batch[1].to(device)
         labels = batch[2].to(device)
@@ -80,6 +83,8 @@ for epoch in range(epochs):
         loss.backward()
         optimizer.step()
         scheduler.step()
+        print(f'Batch_ID: {idx}, Epoch: {epoch}, Loss:  {loss.item()}')
+
 
 # Save the model
 model.save_pretrained("./my_bert_regression_model/")
