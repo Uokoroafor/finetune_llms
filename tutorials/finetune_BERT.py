@@ -64,7 +64,7 @@ model.to(device)
 batch_size = 8
 dataloader = DataLoader(dataset, sampler=RandomSampler(dataset), batch_size=batch_size)
 optimizer = AdamW(model.parameters(), lr=3e-5, eps=1e-8)
-epochs = 50
+epochs = 5
 scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=0, num_training_steps=len(dataloader) * epochs)
 
 loss_fn = MSELoss()
