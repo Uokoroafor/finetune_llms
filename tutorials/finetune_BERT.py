@@ -2,12 +2,12 @@ from transformers import BertTokenizer
 from torch.utils.data import TensorDataset, DataLoader, RandomSampler, SequentialSampler
 import torch
 import pandas as pd
+import time
 
 tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 max_length = 512  # Change according to your needs
 
-folder_loc='tutorials/d'
-
+folder_loc = 'tutorials/d'
 
 data = pd.read_csv('data/shelfbounce/train_fixed.csv')
 val_data = pd.read_csv('data/shelfbounce/val_fixed.csv')
@@ -36,7 +36,7 @@ input_ids, attention_masks = encode_data(tokenizer, texts, max_length)
 labels = torch.tensor(labels)
 dataset = TensorDataset(input_ids, attention_masks, labels)
 
-print(dataset[0])
+# print(dataset[0])
 
 # Create the data loaders
 
@@ -61,7 +61,6 @@ for param in model.parameters():
 for param in model.classifier.parameters():
     param.requires_grad = True
 
-
 batch_size = 8
 dataloader = DataLoader(dataset, sampler=RandomSampler(dataset), batch_size=batch_size)
 optimizer = AdamW(model.parameters(), lr=3e-5, eps=1e-8)
@@ -71,7 +70,9 @@ scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=0, num_t
 loss_fn = MSELoss()
 
 model.train()
+start_time = time.time()
 for epoch in range(epochs):
+    epoch_start = time.time()
     for idx, batch in enumerate(dataloader):
         input_ids = batch[0].to(device)
         attention_masks = batch[1].to(device)
@@ -83,10 +84,16 @@ for epoch in range(epochs):
         loss.backward()
         optimizer.step()
         scheduler.step()
-        print(f'Batch_ID: {idx}, Epoch: {epoch}, Loss:  {loss.item()}')
+        # print every 100 steps
+        if (idx + 1) // 100 == 0:
+            print(f'Batch_ID: {idx + 1}, Epoch: {epoch + 1}, Loss:  {loss.item():,4f}')
+    epoch_end = time.time()
 
+    hours = (epoch_end - epoch_start) // 3600
+    minutes = ((epoch_end - epoch_start) % 3600) // 60
+    seconds = (epoch_end - epoch_start) % 60
+    print(f'Epoch{epoch + 1} complete in {hours} hours, {minutes} minutes and {seconds} seconds.')
 
 # Save the model
 model.save_pretrained("./my_bert_regression_model/")
 tokenizer.save_pretrained("./my_bert_regression_model/")
-
