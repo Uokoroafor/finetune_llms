@@ -227,7 +227,7 @@ class Trainer:
             outputs = self.model(inputs, attention_masks)[0].squeeze()
 
             # want to reshape the outputs and targets to be 2D with the same number of columns
-            if self.model.output_size == 1:
+            if self.model.config.num_labels == 1:
                 outputs = self.model(inputs).squeeze(-1)
                 targets = targets.squeeze(-1)
                 loss = self.loss_fn(outputs, targets)
@@ -287,7 +287,7 @@ class Trainer:
             test_data = test_data.dataset.data
 
         # Reshape according to the model output size
-        if self.model.output_size == 1:
+        if self.model.config.num_labels == 1:
             test_loss = self.loss_fn(self.model(test_data).squeeze(-1), test_data)
         else:
             test_loss = self.loss_fn(
