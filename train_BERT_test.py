@@ -11,12 +11,12 @@ from utils.train_utils import Trainer
 
 # Preallocate variables defined in set_training_hyperparameters
 training_params = dict(device=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
-                       epochs=10,
+                       epochs=500,
                        batch_size=8,
                        eval_every=1,
                        eval_iters=1,
                        max_seq_len=512,
-                       save_every=10, )
+                       save_every=50, )
 
 learning_params = dict(lr=3e-5, eps=1e-8)
 
@@ -106,7 +106,7 @@ model, _, _ = BertTrainer.train(
     save_model=True,
     plotting=True,
     verbose=True,
-    early_stopping=False,
+    early_stopping=True,
     early_stopping_patience=10,
 )
 

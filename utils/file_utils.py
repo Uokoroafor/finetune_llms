@@ -68,7 +68,7 @@ def save_config(config: dict, path: Optional[str] = None) -> None:
         save_path = path
     with open(f"{save_path}", "w") as f:
         for key, value in config.items():
-            f.write(f"{key}: {value}\n")
+            f.write(f"{key}: {value:,}\n")
 
 
 def load_config(config_path: str) -> Dict[str, Any]:

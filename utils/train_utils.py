@@ -1,17 +1,15 @@
-from typing import Optional, Tuple, List, Dict, Callable, Union
-
-import sys
 import os
+import sys
+from typing import Optional, Tuple, List, Dict, Union
 
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
+from transformers import PreTrainedTokenizer, PreTrainedModel
 
 from utils.file_utils import create_training_folder, save_losses, save_config
 from utils.logging_utils import Logger, plot_losses, plot_predictions
 from utils.time_utils import EpochTimer
-
-from transformers import PreTrainedTokenizer, PreTrainedModel
 
 
 class Trainer:
@@ -273,27 +271,19 @@ class Trainer:
 
         return lowest_val_loss, count
 
-    def calculate_test_loss(self, test_data: Union[torch.Tensor, DataLoader]) -> float:
+    def calculate_test_loss(self, test_data: DataLoader, log_error: bool = True) -> float:
         """Calculate the loss on the full test data (without sampling)
         Args:
             test_data (Union[torch.Tensor, DataLoader]): Test data
+            log_error (bool, optional): Whether to log the error. Defaults to True.
         Returns:
             float: Loss on the test data
         """
-        self.model.eval()
+        test_loss = self.training_loop(test_data, method="val")
+        if log_error:
+            self.logger.log_info(f"Test loss: {test_loss}")
 
-        # If the test data is a DataLoader, get the dataset
-        if isinstance(test_data, torch.utils.data.DataLoader):
-            test_data = test_data.dataset.data
-
-        # Reshape according to the model output size
-        if self.model.config.num_labels == 1:
-            test_loss = self.loss_fn(self.model(test_data).squeeze(-1), test_data)
-        else:
-            test_loss = self.loss_fn(
-                self.model(test_data).view(-1, test_data.size(-1)), test_data.view(-1)
-            )
-        return test_loss.item()
+        return test_loss
 
     def log_numerical_outputs(
             self,
