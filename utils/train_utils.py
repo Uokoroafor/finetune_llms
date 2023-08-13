@@ -385,8 +385,7 @@ class Trainer:
                 saved_path=plot_save_path,
             )
 
-    def convert_string_to_float(self,
-            predictions: List[str], targets: List[str]) -> Tuple[List[float], List[float], int, str]:
+    def convert_string_to_float(self, predictions: List[str], targets: List[str]) -> Tuple[List[float], List[float], int, str]:
         """Convert the predictions and targets from strings to floats
         Args:
             predictions (List[str]): List of predicted tokens
