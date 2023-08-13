@@ -110,4 +110,5 @@ model, _, _ = BertTrainer.train(
     early_stopping_patience=10,
 )
 
-BertTrainer.evaluate(test_dataloader=test_dataloader, verbose=True)
+test_error=BertTrainer.calculate_test_loss(test_data=test_dataloader)
+print(f'Test error: {test_error:,.4f}')
