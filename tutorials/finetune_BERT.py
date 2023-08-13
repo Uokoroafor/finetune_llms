@@ -7,7 +7,7 @@ import time
 tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 max_length = 512  # Change according to your needs
 
-folder_loc = 'tutorials/d'
+folder_loc = 'tutorials/'
 
 data = pd.read_csv('data/shelfbounce/train_fixed.csv')
 val_data = pd.read_csv('data/shelfbounce/val_fixed.csv')
@@ -26,6 +26,10 @@ def encode_data(tokenizer, texts, max_length):
         attention_masks.append(encode['attention_mask'][0])
 
     return torch.stack(input_ids), torch.stack(attention_masks)
+
+
+def decode_data(tokenizer, input_ids):
+    return tokenizer.decode(input_ids, skip_special_tokens=True)
 
 
 # get the questions column and convert to list
@@ -113,7 +117,8 @@ for epoch in range(epochs):
     hours = (epoch_end - epoch_start) // 3600
     minutes = ((epoch_end - epoch_start) % 3600) // 60
     seconds = (epoch_end - epoch_start) % 60
-    print(f'Epoch{epoch + 1} complete in {hours} hour(s), {minutes} minute(s) and {seconds: .2f} seconds. Loss: {epoch_loss / (idx + 1):,.4f}')
+    print(
+        f'Epoch{epoch + 1} complete in {hours} hour(s), {minutes} minute(s) and {seconds: .2f} seconds. Loss: {epoch_loss / (idx + 1):,.4f}')
     if (epoch + 1) % 5 == 0:
         torch.save(model.state_dict(), f'./my_bert_regression_model/epoch{epoch + 1}.pth')
         # Validation
@@ -129,8 +134,8 @@ for epoch in range(epochs):
                 loss = loss_fn(outputs, labels)
                 val_loss += loss.item()
 
-        print(f'At Epoch {epoch}: Validation Loss: {val_loss / (idx_ + 1):,.4f} - Training Loss: {epoch_loss / (idx + 1):,.4f}')
-
+        print(
+            f'At Epoch {epoch}: Validation Loss: {val_loss / (idx_ + 1):,.4f} - Training Loss: {epoch_loss / (idx + 1):,.4f}')
 
 # Total training time
 end_time = time.time()
@@ -138,7 +143,6 @@ hours = (end_time - start_time) // 3600
 minutes = ((end_time - start_time) % 3600) // 60
 seconds = (end_time - start_time) % 60
 print(f'Training complete in {hours} hour(s), {minutes} minute(s) and {seconds: .2f} seconds.')
-
 
 # Save the model
 model.save_pretrained("./my_bert_regression_model/")
