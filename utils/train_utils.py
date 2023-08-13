@@ -216,14 +216,15 @@ class Trainer:
         total_loss = 0
         # Only want to loop through a subset of the data_loader as it is too large
 
-        for batch_idx, (inputs, targets) in enumerate(dataloader):
-            inputs = inputs.to(self.device)
-            targets = targets.to(self.device)
+        for batch_idx, batch in enumerate(dataloader):
+            inputs = batch[0].to(self.device)
+            attention_masks = batch[1].to(self.device)
+            targets = batch[2].to(self.device)
 
             if method == "train":
                 self.optimiser.zero_grad()
 
-            outputs = self.model(inputs)
+            outputs = self.model(inputs, attention_masks)[0].squeeze()
 
             # want to reshape the outputs and targets to be 2D with the same number of columns
             if self.model.output_size == 1:
