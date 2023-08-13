@@ -228,8 +228,8 @@ class Trainer:
 
             # want to reshape the outputs and targets to be 2D with the same number of columns
             if self.model.config.num_labels == 1:
-                outputs = self.model(inputs).squeeze(-1)
-                targets = targets.squeeze(-1)
+                # outputs = self.model(inputs).squeeze(-1)
+                # targets = targets.squeeze(-1)
                 loss = self.loss_fn(outputs, targets)
             else:
                 loss = self.loss_fn(
