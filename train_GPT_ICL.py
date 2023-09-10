@@ -17,10 +17,12 @@ import math
 
 numbers = []
 for number in range(0, 30):
-    numbers.append(str(3*number**3+2*number**2))
+    numbers.append(str(3 * number**3 + 2 * number**2))
 
 # Number prompts are in groups of 4
-number_contexts = [[numbers[i:i + 3], numbers[i + 3]] for i in range(0, len(numbers) - 3)]
+number_contexts = [
+    [numbers[i : i + 3], numbers[i + 3]] for i in range(0, len(numbers) - 3)
+]
 
 # Shuffle the number prompts
 random.shuffle(number_contexts)
@@ -32,25 +34,25 @@ contexts = []
 answers = []
 
 for context in number_contexts:
-    contexts.append(', '.join(context[0]))
+    contexts.append(", ".join(context[0]))
     answers.append(context[1])
 
 # Define the prompt
-question_prompt = ' What number comes next in the sequence '
+question_prompt = " What number comes next in the sequence "
 
 
 # Define the function to generate the prompt
-def generate_prompt(context, answer=''):
-    prompt = ''
-    if answer == '':
-        prompt += 'input-> ' + question_prompt + context + '? Ans-> '
+def generate_prompt(context, answer=""):
+    prompt = ""
+    if answer == "":
+        prompt += "input-> " + question_prompt + context + "? Ans-> "
     else:
-        prompt += 'input-> ' + question_prompt + context + '? Ans-> ' + answer + '\n'
+        prompt += "input-> " + question_prompt + context + "? Ans-> " + answer + "\n"
     return prompt
 
 
 def generate_few_shot_prompt(contexts, answers, num_shots=3, current_index=0):
-    prompt = ''
+    prompt = ""
 
     for _ in range(num_shots):
         while True:
@@ -65,10 +67,14 @@ def generate_few_shot_prompt(contexts, answers, num_shots=3, current_index=0):
 
 
 for num_shot in range(5):
-# Generate the prompts
-    prompts = [generate_prompt(context, answer) for context, answer in zip(contexts, answers)]
-    few_shot_prompts = [generate_few_shot_prompt(contexts, answers, num_shots=num_shot, current_index=i) for i in
-                        range(len(contexts))]
+    # Generate the prompts
+    prompts = [
+        generate_prompt(context, answer) for context, answer in zip(contexts, answers)
+    ]
+    few_shot_prompts = [
+        generate_few_shot_prompt(contexts, answers, num_shots=num_shot, current_index=i)
+        for i in range(len(contexts))
+    ]
 
     answers_ = []
     for p in few_shot_prompts[:1]:

@@ -13,15 +13,14 @@ from utils.time_utils import EpochTimer
 
 
 class Trainer:
-
     def __init__(
-            self,
-            model: PreTrainedModel,
-            optimiser: torch.optim.Optimizer,
-            loss_fn: torch.nn.modules.loss._Loss,
-            training_hyperparameters: Dict,
-            tokenizer: PreTrainedTokenizer,
-            scheduler: Optional[torch.optim.lr_scheduler._LRScheduler] = None,
+        self,
+        model: PreTrainedModel,
+        optimiser: torch.optim.Optimizer,
+        loss_fn: torch.nn.modules.loss._Loss,
+        training_hyperparameters: Dict,
+        tokenizer: PreTrainedTokenizer,
+        scheduler: Optional[torch.optim.lr_scheduler._LRScheduler] = None,
     ):
         """Constructor class for Trainer used to train a transformer model for language modelling and text generation
         Args:
@@ -74,15 +73,15 @@ class Trainer:
         self.logger = None
 
     def train(
-            self,
-            train_dataloader: torch.utils.data.DataLoader,
-            val_dataloader: torch.utils.data.DataLoader,
-            save_model: bool = True,
-            save_model_path: Optional[str] = None,
-            plotting: bool = True,
-            verbose: bool = True,
-            early_stopping: bool = False,
-            early_stopping_patience: int = 10,
+        self,
+        train_dataloader: torch.utils.data.DataLoader,
+        val_dataloader: torch.utils.data.DataLoader,
+        save_model: bool = True,
+        save_model_path: Optional[str] = None,
+        plotting: bool = True,
+        verbose: bool = True,
+        early_stopping: bool = False,
+        early_stopping_patience: int = 10,
     ):
         """Train the model
 
@@ -138,7 +137,9 @@ class Trainer:
                     )
 
                 # Update the best model state dict and lowest validation loss
-                lowest_val_loss, count = self.update_best_model_dict(val_loss, lowest_val_loss, count)
+                lowest_val_loss, count = self.update_best_model_dict(
+                    val_loss, lowest_val_loss, count
+                )
 
                 if early_stopping and i > 0 and count >= early_stopping_patience:
                     logger.log_info(f"Stopping early after {i + 1} iterations")
@@ -193,7 +194,7 @@ class Trainer:
         return self.model, train_losses, val_losses
 
     def training_loop(
-            self, dataloader: torch.utils.data.DataLoader, method: str = "train"
+        self, dataloader: torch.utils.data.DataLoader, method: str = "train"
     ) -> float:
         """Training loop for the model
 
@@ -248,7 +249,7 @@ class Trainer:
         return total_loss / len(dataloader)
 
     def update_best_model_dict(
-            self, loss_val: float, lowest_val_loss: float, count: int
+        self, loss_val: float, lowest_val_loss: float, count: int
     ) -> Tuple[float, int]:
         """Update the best model dictionary if the validation loss is the lowest so far
         Args:
@@ -271,7 +272,9 @@ class Trainer:
 
         return lowest_val_loss, count
 
-    def calculate_test_loss(self, test_data: DataLoader, log_error: bool = True) -> float:
+    def calculate_test_loss(
+        self, test_data: DataLoader, log_error: bool = True
+    ) -> float:
         """Calculate the loss on the full test data (without sampling)
         Args:
             test_data (Union[torch.Tensor, DataLoader]): Test data
@@ -286,10 +289,10 @@ class Trainer:
         return test_loss
 
     def log_numerical_outputs(
-            self,
-            dataloader: torch.utils.data.DataLoader,
-            log_name: Optional[str] = None,
-            output_type: str = "num",
+        self,
+        dataloader: torch.utils.data.DataLoader,
+        log_name: Optional[str] = None,
+        output_type: str = "num",
     ):
         """Log the numerical outputs of the model to a file. It also plots the predictions vs the targets
         Args:
@@ -344,11 +347,10 @@ class Trainer:
                                     + "".join(self.decode_data(target[i, :].tolist()))
                                     + "\n"
                                 )
-                                pred = "".join(self.decode_data(output[i, :].argmax(-1).tolist()))
-                                f.write(
-                                    f"Prediction is {pred}"
-                                    + "\n\n"
+                                pred = "".join(
+                                    self.decode_data(output[i, :].argmax(-1).tolist())
                                 )
+                                f.write(f"Prediction is {pred}" + "\n\n")
                             else:
                                 f.write(
                                     "Target is "
@@ -375,8 +377,10 @@ class Trainer:
                     )
                     self.logger.log_warning(error_log)
                 # log MSE error
-                self.logger.log_info(f"MSE Error on converted numerical outputs "
-                                     f"is {nn.MSELoss()(torch.tensor(predictions), torch.tensor(targets)) :,.4f}")
+                self.logger.log_info(
+                    f"MSE Error on converted numerical outputs "
+                    f"is {nn.MSELoss()(torch.tensor(predictions), torch.tensor(targets)) :,.4f}"
+                )
 
             plot_predictions(
                 predictions=predictions,
@@ -385,7 +389,9 @@ class Trainer:
                 saved_path=plot_save_path,
             )
 
-    def convert_string_to_float(self, predictions: List[str], targets: List[str]) -> Tuple[List[float], List[float], int, str]:
+    def convert_string_to_float(
+        self, predictions: List[str], targets: List[str]
+    ) -> Tuple[List[float], List[float], int, str]:
         """Convert the predictions and targets from strings to floats
         Args:
             predictions (List[str]): List of predicted tokens
@@ -398,12 +404,12 @@ class Trainer:
         pred_out = []
         target_out = []
         count = 0
-        error_log = ''
+        error_log = ""
 
         for i in range(len(predictions)):
             try:
                 pred = "".join(self.decode_data(predictions[i]))
-                pred = pred.split('<eos>')[0].replace('<sos>', '')
+                pred = pred.split("<eos>")[0].replace("<sos>", "")
                 pred_out.append(float(pred))
                 target_out.append(float("".join(self.decode_data(targets[i]))))
 
@@ -412,7 +418,9 @@ class Trainer:
                 if count <= 20:
                     # Only want to log the first 20 errors otherwise the log file gets too big
                     error_log += f"Could not convert Prediction: {pred} to float.\n"
-                    error_log += f"Target was {float(''.join(self.decode_data(targets[i])))}\n\n"
+                    error_log += (
+                        f"Target was {float(''.join(self.decode_data(targets[i])))}\n\n"
+                    )
                 continue
         return pred_out, target_out, count, error_log
 
@@ -464,15 +472,22 @@ class Trainer:
         attention_masks = []
 
         for text in texts:
-            encode = self.tokenizer.encode_plus(text, add_special_tokens=True,
-                                                max_length=self.max_seq_len, truncation=True, padding='max_length',
-                                                return_tensors='pt')
-            input_ids.append(encode['input_ids'][0])
-            attention_masks.append(encode['attention_mask'][0])
+            encode = self.tokenizer.encode_plus(
+                text,
+                add_special_tokens=True,
+                max_length=self.max_seq_len,
+                truncation=True,
+                padding="max_length",
+                return_tensors="pt",
+            )
+            input_ids.append(encode["input_ids"][0])
+            attention_masks.append(encode["attention_mask"][0])
 
         return torch.stack(input_ids), torch.stack(attention_masks)
 
-    def decode_data(self, input_ids: torch.Tensor, skip_special_tokens: bool = True) -> str:
+    def decode_data(
+        self, input_ids: torch.Tensor, skip_special_tokens: bool = True
+    ) -> str:
         """Decode the input ids using the tokenizer
         Args:
             input_ids (torch.Tensor): Input ids to decode
