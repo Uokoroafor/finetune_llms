@@ -4,3 +4,4 @@ matplotlib==3.7.2
 Transformers==4.31.0
 pandas~=2.0.3
 openai~=0.27.8
+python-dotenv~=1.0.0
