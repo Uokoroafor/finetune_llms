@@ -6,4 +6,4 @@ This repository serves primarily as a sandbox environment used for experimentati
 
 ## Overview
 
-This is a sandbox environment for the individual project submission MSc in Artificial Intelligence Course at Imperial College London. It is for testing of fine-tuning the LLMS model on the Arcade Learning Environment as well as In-Context Learning.
+This is a sandbox repository for the individual project submission MSc in Artificial Intelligence Course at Imperial College London. It is for testing of fine-tuning the LLMS model on the Arcade Learning Environment as well as In-Context Learning.
